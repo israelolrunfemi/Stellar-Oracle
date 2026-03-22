@@ -1,11 +1,20 @@
-import { AggregatedPrice } from "./aggregator";
 import "dotenv/config";
+import type { AggregatedPrice, FeedConfig } from "./types";
+
+export function getConfig(): FeedConfig {
+  return {
+    oracleContractId: process.env.ORACLE_CONTRACT_ID,
+    relayerSecret:    process.env.RELAYER_SECRET,
+    rpcUrl:           process.env.SOROBAN_RPC_URL ?? "https://soroban-testnet.stellar.org",
+    assets:           (process.env.ASSETS ?? "XLM:USD").split(","),
+    intervalMs:       Number(process.env.INTERVAL_MS ?? 60_000),
+  };
+}
 
 export async function feedPrice(price: AggregatedPrice): Promise<void> {
-  const oracle = process.env.ORACLE_CONTRACT_ID;
-  const secret = process.env.RELAYER_SECRET;
+  const config = getConfig();
 
-  if (!oracle || !secret) {
+  if (!config.oracleContractId || !config.relayerSecret) {
     console.log(
       `[stub] ${price.asset} = $${price.price.toFixed(7)}`,
       `| scaled: ${price.scaledPrice}`,
@@ -14,6 +23,5 @@ export async function feedPrice(price: AggregatedPrice): Promise<void> {
     return;
   }
 
-  // Live submit logic — tracked in GitHub issue #3
   console.log(`[live] Contract wiring tracked in issue #3`);
 }

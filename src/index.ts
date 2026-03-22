@@ -1,13 +1,10 @@
-import { getAggregatedPrice } from "./aggregator";
-import { feedPrice } from "./feeder";
 import "dotenv/config";
+import { getAggregatedPrice } from "./aggregator";
+import { feedPrice, getConfig } from "./feeder";
 
-const ASSETS   = (process.env.ASSETS      ?? "XLM:USD").split(",");
-const INTERVAL = Number(process.env.INTERVAL_MS ?? 60_000);
-
-async function tick() {
+async function tick(assets: string[]): Promise<void> {
   console.log(`\n[${new Date().toISOString()}] Fetching prices...`);
-  for (const asset of ASSETS) {
+  for (const asset of assets) {
     try {
       const price = await getAggregatedPrice(asset);
       await feedPrice(price);
@@ -17,8 +14,12 @@ async function tick() {
   }
 }
 
-console.log("Stellar Oracle starting...");
-console.log(`Assets: ${ASSETS.join(", ")} | Interval: ${INTERVAL / 1000}s`);
+function main(): void {
+  const { assets, intervalMs } = getConfig();
+  console.log("Stellar Oracle starting...");
+  console.log(`Assets: ${assets.join(", ")} | Interval: ${intervalMs / 1000}s`);
+  tick(assets);
+  setInterval(() => tick(assets), intervalMs);
+}
 
-tick();
-setInterval(tick, INTERVAL);
+main();

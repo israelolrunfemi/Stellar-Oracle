@@ -1,18 +1,6 @@
 import Decimal from "decimal.js";
 import "dotenv/config";
-
-export interface PriceSample {
-  source: string;
-  asset:  string;
-  price:  Decimal;
-}
-
-export interface AggregatedPrice {
-  asset:       string;
-  price:       Decimal;
-  scaledPrice: bigint;
-  sources:     string[];
-}
+import type { PriceSample, AggregatedPrice } from "./types";
 
 async function fromCoinGecko(asset: string): Promise<PriceSample> {
   const ids: Record<string, string> = {
